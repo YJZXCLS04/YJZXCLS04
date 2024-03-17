@@ -44,7 +44,7 @@ body.addEventListener('mousemove', (e) => {
 
 //加载完成后执行
 window.addEventListener('load', function () {
-    this.alert("两周一摸");
+    swal("两周一摸");
     //载入动画
     $('#loading-box').attr('class', 'loaded');
     $('#bg').css("cssText", "transform: scale(1);filter: blur(0px);transition: ease 1.5s;");
