@@ -1,0 +1,46 @@
+{
+    "title": "YZC04",
+    "description": "",
+    "keywords": "",
+    "author": "zy",
+    "logo_img": "./img/icon/custom_logo.png",
+    "logo_text_1": "yjzxclass04",
+    "logo_text_2": "",
+    "github": "",
+    "qq": "",
+    "email": "",
+    "bilibili": "1078990646",
+    "facebook": "",
+    "link_1": [
+        "./call.html",
+        "fa-solid fa-blog",
+        "正在制作的"
+    ],
+    "link_2": [
+        "",
+        "fa-solid fa-cloud",
+        "none"
+    ],
+    "link_3": [
+        "",
+        "fa-solid fa-compass",
+        "none"
+    ],
+    "link_4": [
+        "",
+        "fa-solid fa-book-bookmark",
+        "none"
+    ],
+    "link_5": [
+        "",
+        "fa-solid fa-flask",
+        "none"
+    ],
+    "link_6": [
+        "",
+        "fa-solid fa-flask",
+        "敬请期待..."
+    ],
+    "Copyright_text": "",
+    "beian": ""
+}

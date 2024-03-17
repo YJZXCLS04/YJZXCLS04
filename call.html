@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>点名模拟器</title>
+<style>
+    #loops {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+#loops {
+  border: 2px solid #3498db;
+  border-radius: 10px;
+  padding: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(to right, #74b9ff, #0984e3);
+  color: white;
+  font-weight: bold;
+  transition: transform 0.2s ease;
+}
+
+#loops:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+  body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+  }
+  #title {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  #students {
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    grid-gap: 5px;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    width: 80%;
+  }
+  .student {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+    background-color: #f0f0f0;
+    cursor: pointer;
+    border: 1px solid #ddd;
+    font-size: 14px;
+  }
+  .active {
+    background-color: #add8e6;
+  }
+  #rollCallButton {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 20px;
+  }
+  #rollCallButton:hover {
+    background-color: #45a049;
+  }
+  button {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 20px;
+  }
+  button:hover {
+    background-color: #45a049;
+  }
+  body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f7f7f7;
+  color: #333;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+#title {
+  font-size: 32px;
+  color: #2c3e50;
+  margin: 20px 0;
+}
+
+#students {
+    display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  grid-gap: 10px;
+  justify-content: center;
+  align-items: center;
+  width: 100%; /* 确保容器宽度足够 */
+  max-width: 960px; /* 或者设置一个最大宽度 */
+  margin: auto; /* 水平居中 */
+}
+
+.student {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  min-width: 0; /* 防止内容溢出 */
+  overflow: hidden; /* 隐藏溢出的内容 */
+}
+
+.student:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.active {
+  background-color: #3498db;
+  color: #fff;
+}
+
+#rollCallButton {
+  background-color: #3498db;
+  color: #fff;
+  border: none;
+  padding: 15px 30px;
+  font-size: 18px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+#rollCallButton:hover {
+  background-color: #2980b9;
+}
+#callCounts {
+  margin-top: 20px;
+}
+
+#callCounts div {
+  margin-bottom: 5px;
+}
+</style>
+</head>
+<body>
+<div id="students">
+  <!-- 学生名单 -->
+</div>
+<button onclick="startRollCall()">开始点名</button>
+
+<script>
+    let allLoops = [];
+    let rollCallInterval;
+
+// 创建一个新的按钮元素
+const autoCallButton = document.createElement('button');
+autoCallButton.textContent = '自动点名';
+autoCallButton.onclick = function() {
+  // 如果定时器已经在运行，则停止它
+  if (rollCallInterval) {
+    clearInterval(rollCallInterval);
+    rollCallInterval = null;
+    this.textContent = '自动点名';
+  } else {
+    // 否则，开始一个新的定时器来自动点击开始点名按钮
+    rollCallInterval = setInterval(startRollCall, 500);
+    this.textContent = '停止自动点名';
+  }
+};
+
+// 将按钮添加到页面中
+document.body.appendChild(autoCallButton);
+  // 学生名单数组
+  const students = Array.from({length: 54}, (_, i) => '学生' + (i + 1));
+  // 当前点到的学生索引
+  let currentIndex = -1;
+  // 已点名的学生索引集合
+  let calledStudents = new Set();
+
+  // 初始化学生名单显示
+  function initStudents() {
+    const studentsDiv = document.getElementById('students');
+    students.forEach(student => {
+      const div = document.createElement('div');
+      div.className = 'student';
+      div.textContent = student;
+      div.onclick = function() { callNext(student); };
+      studentsDiv.appendChild(div);
+    });
+  }
+
+  // 开始点名
+  function startRollCall() {
+    currentIndex = Math.floor(Math.random() * students.length);
+    updateStudentDisplay();
+    callNext(students[currentIndex]);
+  }
+
+  // 点下一个学生
+
+  // 更新学生显示状态
+
+function callNext(student) {
+  // ...现有的callNext函数代码...
+  if (calledStudents.has(student)) {
+    const loop = Array.from(calledStudents)
+    allLoops.push(loop);
+    alert('闭环形成！' + loop.join(' -> '));
+    clearCalledHighlights();
+    displayLoops()
+      calledStudents.clear();
+      updateStudentDisplay();
+      
+      return;
+    }
+    calledStudents.add(student);
+    currentIndex = students.indexOf(student);
+    updateStudentDisplay();
+    
+}
+function clearCalledHighlights() {
+  const studentDivs = document.querySelectorAll('.student.called');
+  studentDivs.forEach(div => {
+    div.classList.remove('called');
+  });
+}
+// 更新updateStudentDisplay函数以保持被点名学生的高亮显示
+function updateStudentDisplay() {
+  // ...现有的updateStudentDisplay函数代码...
+  const studentDivs = document.querySelectorAll('.student');
+    studentDivs.forEach(div => {
+      div.classList.remove('active');
+    });
+    if (currentIndex !== -1) {
+      studentDivs[currentIndex].classList.add('active');
+    }
+  // 保持被点名学生的高亮显示
+  calledStudents.forEach(calledStudent => {
+    const index = students.indexOf(calledStudent);
+    studentDivs[index].classList.add('called');
+  });
+}
+
+// 添加CSS样式
+const style = document.createElement('style');
+style.innerHTML = `
+  .called {
+    background-color: #f39c12; /* 被点名学生的高亮颜色 */
+  }
+`;
+document.head.appendChild(style);
+function displayLoops() {
+  const loopsDiv = document.getElementById('loops');
+  loopsDiv.innerHTML = ''; // 清空之前的闭环信息
+  allLoops.forEach((loop, index) => {
+    const loopDiv = document.createElement('div');
+    loopDiv.textContent = '闭环 ' + (index + 1) + ': ' + loop.join(' -> ');
+    loopsDiv.appendChild(loopDiv);
+  });
+}
+
+// 页面加载完成后初始化学生名单和闭环信息显示区域
+window.onload = function() {
+  initStudents();
+  initLoopsDisplay();
+};
+
+// 初始化闭环信息显示区域
+function initLoopsDisplay() {
+  const loopsDiv = document.createElement('div');
+  loopsDiv.id = 'loops';
+  document.body.appendChild(loopsDiv);
+}
+</script>
+
+</body>
+</html>
